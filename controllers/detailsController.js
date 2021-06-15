@@ -1,13 +1,12 @@
 const { Details } = require('../models/detailsModel');
-const errorHandler = require('../utils/errorHandler');
+const { sendErrorResponse } = require('../utils/errorHandler');
 
 const getDetails = async (req, res) => {
   try {
     const details = await Details.findOne({}, '-_id').populate('items');
-    res.status(200).json(details);
+    res.json(details);
   } catch(error) {
-    const { statusCode, errors } = errorHandler(error);
-    res.status(statusCode).json(errors);
+    sendErrorResponse(res, error);
   }
 };
 
@@ -30,10 +29,9 @@ const updateDetails = async (req, res) => {
       )
       .populate('items');
 
-    res.status(200).json(updatedDetails);
+    res.json(updatedDetails);
   } catch(error) {
-    const { statusCode, errors } = errorHandler(error);
-    res.status(statusCode).json(errors);
+    sendErrorResponse(res, error);
   }
 };
 

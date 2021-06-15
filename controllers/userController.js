@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const errorHandler = require('../utils/errorHandler');
+const { sendErrorResponse } = require('../utils/errorHandler');
 
 const tokenKey = 'jwt';
 const tokenMaxAge = process.env.TOKEN_MAX_AGE * 60 * 60;
@@ -24,8 +24,7 @@ const signupUser = async (req, res) => {
       id: user._id
     });
   } catch(error) {
-    const { statusCode, errors } = errorHandler(error);
-    res.status(statusCode).json(errors);
+    sendErrorResponse(res, error);
   }
 }
 
@@ -36,19 +35,18 @@ const loginUser = async (req, res) => {
     const user = await User.login(username, password);
     const token = createToken(user._id);
     res.cookie(tokenKey, token, { httpOnly: true, maxAge: tokenMaxAge * 1000 });
-    res.status(200).json({
+    res.json({
       userId: user._id
     });
   } catch(error) {
-    const { statusCode, errors } = errorHandler(error);
     res.cookie(tokenKey, '', { maxAge: 1 });
-    res.status(statusCode).json(errors);
+    sendErrorResponse(res, error);
   }
 }
 
 const logoutUser = (req, res) => {
   res.cookie(tokenKey, '', { maxAge: 1 });
-  res.status(200).json({
+  res.json({
     message: 'User logged out'
   });
 };

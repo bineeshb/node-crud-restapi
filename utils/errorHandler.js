@@ -1,5 +1,6 @@
 const errorHandler = error => {
   const { code, message } = error;
+  // console.log(code, message);
   let statusCode = 500;
   let errors = {};
 
@@ -33,4 +34,12 @@ const errorHandler = error => {
   };
 };
 
-module.exports = errorHandler;
+const sendErrorResponse = (res, error) => {
+  const { statusCode, errors } = errorHandler(error);
+  res.status(statusCode).json(errors);
+};
+
+module.exports = {
+  errorHandler,
+  sendErrorResponse
+};

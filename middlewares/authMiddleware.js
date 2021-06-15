@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const errorHandler = require('../utils/errorHandler');
+const { sendErrorResponse } = require('../utils/errorHandler');
 
 const requireAuth = (req, res, next) => {
   try {
@@ -17,8 +17,7 @@ const requireAuth = (req, res, next) => {
       throw Error('Unauthorized');
     }
   } catch (error) {
-    const { statusCode, errors } = errorHandler(error);
-    res.status(statusCode).json(errors);
+    sendErrorResponse(res, error);
   }
 };
 

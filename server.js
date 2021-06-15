@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './config/config.env' });
 
 const { detailsRouter } = require('./routes/detailsRouter');
+const { itemsRouter } = require('./routes/itemsRouter');
 const { userRouter } = require('./routes/userRouter');
 
 const app = express();
@@ -24,12 +25,21 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  console.log(req);
-  res.send('Hello !!!');
+  res.json({
+    message: `Check the available APIs in 'apis' property`,
+    apis: [
+      { path: `${apiBaseURL}/signup`, protocols: ['POST'] },
+      { path: `${apiBaseURL}/login`, protocols: ['POST'] },
+      { path: `${apiBaseURL}/logout`, protocols: ['GET'] },
+      { path: `${apiBaseURL}/details`, protocols: ['GET'] },
+      { path: `${apiBaseURL}/items`, protocols: ['GET'] }
+    ]
+  });
 });
 
 app.use(apiBaseURL, userRouter);
 app.use(`${apiBaseURL}/details`, detailsRouter);
+app.use(`${apiBaseURL}/items`, itemsRouter);
 
 app.listen(SERVER_PORT, () => {
   console.log(`Server running on port ${SERVER_PORT}`);
