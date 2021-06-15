@@ -1,6 +1,6 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const errorHandler = require('../utils/errorHandler');
-const jwt = require('jsonwebtoken');
 
 const tokenKey = 'jwt';
 const tokenMaxAge = process.env.TOKEN_MAX_AGE * 60 * 60;
@@ -53,4 +53,8 @@ const logoutUser = (req, res) => {
   });
 };
 
-module.exports = { loginUser, logoutUser, signupUser };
+module.exports = {
+  loginUser,
+  logoutUser,
+  signupUser
+};

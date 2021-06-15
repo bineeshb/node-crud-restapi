@@ -1,12 +1,16 @@
 const errorHandler = error => {
   const { code, message } = error;
-  console.log(code, message);
   let statusCode = 500;
   let errors = {};
 
   if (code === 11000) {
     statusCode = 400;
     errors.username = 'Username already exists';
+  }
+
+  if (message === 'Unauthorized') {
+    statusCode = 401;
+    errors.message = 'User not authorized';
   }
 
   if (message === 'Invalid Credentials') {

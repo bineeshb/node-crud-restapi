@@ -1,24 +1,24 @@
 const jwt = require('jsonwebtoken');
+const errorHandler = require('../utils/errorHandler');
 
 const requireAuth = (req, res, next) => {
-  const token = req.cookies.jwt;
+  try {
+    const token = req.cookies.jwt;
 
-  if (token) {
-    jwt.verify(token, process.env.SECRET_KEY, (err, decodedToken) => {
-      if (err) {
-        console.error(err);
-        res.status(401).json({
-          message: 'Invalid User'
-        });
-      } else {
-        console.log(decodedToken);
-        next();
-      }
-    });
-  } else {
-    res.status(401).json({
-      message: 'Invalid User'
-    });
+    if (token) {
+      jwt.verify(token, process.env.SECRET_KEY, err => {
+        if (err) {
+          throw Error('Unauthorized');
+        } else {
+          next();
+        }
+      });
+    } else {
+      throw Error('Unauthorized');
+    }
+  } catch (error) {
+    const { statusCode, errors } = errorHandler(error);
+    res.status(statusCode).json(errors);
   }
 };
 
