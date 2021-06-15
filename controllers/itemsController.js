@@ -20,7 +20,32 @@ const addItem = async (req, res) => {
   }
 };
 
+const deleteItem = async (req, res) => {
+  try {
+    await Item.findByIdAndDelete(req.params.id);
+    res.json({
+      message: 'Item deleted successfully'
+    });
+  } catch(error) {
+    sendErrorResponse(res, error);
+  }
+};
+
+const updateItem = async (req, res) => {
+  try {
+    const items = await Item.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+    res.json(items);
+  } catch(error) {
+    sendErrorResponse(res, error);
+  }
+};
+
 module.exports = {
   addItem,
-  getItems
+  deleteItem,
+  getItems,
+  updateItem
 };

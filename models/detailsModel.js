@@ -1,16 +1,30 @@
 const { model, Schema } = require('mongoose');
 
+const transformResponse = function (doc, ret) {
+  ret.id = ret._id;
+  delete ret._id;
+  delete ret.__v;
+};
+
 const itemSchema = new Schema({
   name: {
     type: String,
     required: [ true, 'Item name is required' ],
-    unique: [ true, 'Item already exists' ]
+    unique: true
   },
   count: {
     type: Number,
     required: [ true, 'Item count is required' ],
     default: 0,
     min: [ 0, 'Item count must be greater than or equal to 0' ]
+  }
+},
+{
+  toObject: {
+    transform: transformResponse
+  },
+  toJSON: {
+    transform: transformResponse
   }
 });
 

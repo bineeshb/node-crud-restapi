@@ -1,12 +1,15 @@
 const errorHandler = error => {
   const { code, message } = error;
-  // console.log(code, message);
+  console.error(code, message);
   let statusCode = 500;
   let errors = {};
 
   if (code === 11000) {
+    const duplicateValuesIn = error.keyPattern && typeof error.keyPattern === 'object'
+      ? `for the keys: ${Object.keys(error.keyPattern).join()}`
+      : '';
     statusCode = 400;
-    errors.username = 'Username already exists';
+    errors.message = `Duplicate value in request ${duplicateValuesIn}`.trim();
   }
 
   if (message === 'Unauthorized') {
