@@ -3,7 +3,7 @@ const { sendErrorResponse } = require('../utils/errorHandler');
 
 const getItems = async (req, res) => {
   try {
-    const items = await Item.find();
+    const items = await Item.getItems();
     res.json(items);
   } catch(error) {
     sendErrorResponse(res, error);

@@ -1,7 +1,7 @@
 const errorHandler = error => {
   const { code, message } = error;
   console.error(code, message);
-  let statusCode = 500;
+  let statusCode = error.statusCode || 500;
   let errors = {};
 
   if (code === 11000) {
