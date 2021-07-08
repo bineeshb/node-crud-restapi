@@ -5,9 +5,9 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: './config/config.env' });
 
-const { detailsRouter } = require('./routes/detailsRouter');
-const { itemsRouter } = require('./routes/itemsRouter');
 const { userRouter } = require('./routes/userRouter');
+const { masterStoreRouter } = require('./routes/masterStoreRouter');
+const { userStoreRouter } = require('./routes/userStoreRouter');
 
 const app = express();
 const SERVER_PORT = process.env.SERVER_PORT || 3000;
@@ -31,15 +31,17 @@ app.get('/', (req, res) => {
       { path: `${apiBaseURL}/signup`, protocols: ['POST'] },
       { path: `${apiBaseURL}/login`, protocols: ['POST'] },
       { path: `${apiBaseURL}/logout`, protocols: ['GET'] },
-      { path: `${apiBaseURL}/details`, protocols: ['GET'] },
-      { path: `${apiBaseURL}/items`, protocols: ['GET'] }
+      { path: `${apiBaseURL}/available-items`, protocols: ['GET', 'POST'] },
+      { path: `${apiBaseURL}/available-items/:itemId`, protocols: ['PUT', 'DELETE'] },
+      { path: `${apiBaseURL}/store-items`, protocols: ['GET', 'POST'] },
+      { path: `${apiBaseURL}/store-items/:itemId`, protocols: ['PUT', 'DELETE'] }
     ]
   });
 });
 
 app.use(apiBaseURL, userRouter);
-app.use(`${apiBaseURL}/details`, detailsRouter);
-app.use(`${apiBaseURL}/items`, itemsRouter);
+app.use(`${apiBaseURL}/available-items`, masterStoreRouter);
+app.use(`${apiBaseURL}/store-items`, userStoreRouter);
 
 app.listen(SERVER_PORT, () => {
   console.log(`Server running on port ${SERVER_PORT}`);

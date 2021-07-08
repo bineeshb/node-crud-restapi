@@ -22,6 +22,11 @@ const errorHandler = error => {
     errors.message = message;
   }
 
+  if (message.includes('Cast to ObjectId failed')) {
+    statusCode = 400;
+    errors.message = 'Invalid ID in request';
+  }
+
   if (message.includes('validation failed')) {
     statusCode = 400;
     Object.values(error.errors).forEach(({ properties: { path, message } }) => (errors[path] = message));

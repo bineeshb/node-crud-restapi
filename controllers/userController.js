@@ -15,13 +15,13 @@ const createToken = id => {
 };
 
 const signupUser = async (req, res) => {
-  const { username, password } = req.body;
+  const { name, username, password } = req.body;
 
   try {
-    const user = await User.create({ username, password });
+    await User.create({ name, username, password });
 
     res.status(201).json({
-      id: user._id
+      message: 'User created successfully'
     });
   } catch(error) {
     sendErrorResponse(res, error);
@@ -36,7 +36,8 @@ const loginUser = async (req, res) => {
     const token = createToken(user._id);
     res.cookie(tokenKey, token, { httpOnly: true, maxAge: tokenMaxAge * 1000 });
     res.json({
-      userId: user._id
+      userName: user.name,
+      role: user.role
     });
   } catch(error) {
     res.cookie(tokenKey, '', { maxAge: 1 });
@@ -47,7 +48,7 @@ const loginUser = async (req, res) => {
 const logoutUser = (req, res) => {
   res.cookie(tokenKey, '', { maxAge: 1 });
   res.json({
-    message: 'User logged out'
+    message: 'User logged out successfully'
   });
 };
 
