@@ -2,13 +2,12 @@ const UserStore = require('../models/userStoreModel');
 const AppError = require('../utils/appError');
 const { sendErrorResponse } = require('../utils/errorHandler');
 
-const getUserIdFromParams = params => params.user.id;
 const isItemInList = (items, findItemId) => items.some(({ itemId }) => itemId.equals(findItemId));
 const getRemainingItems = (items, excludeItemId) => items.filter(({ itemId }) => !itemId.equals(excludeItemId));
 
 const getItemsFromUserStore = async (req, res) => {
   try {
-    const userId = getUserIdFromParams(req.params);
+    const { userId } = req.params;
     const userStore = await UserStore.findOne({ userId }).populate('items.itemId');
     const items = userStore?.items
       ? userStore.items.map(({ itemId: { name, _id: id }, quantity }) => ({ id, name, quantity }))
@@ -25,7 +24,7 @@ const getItemsFromUserStore = async (req, res) => {
 
 const addItemToUserStore = async (req, res) => {
   try {
-    const userId = getUserIdFromParams(req.params);
+    const { userId } = req.params;
     const { itemId, quantity } = req.body;
     const userStore = await UserStore.findOne({ userId });
 
@@ -66,12 +65,12 @@ const addItemToUserStore = async (req, res) => {
 
 const deleteItemFromUserStore = async (req, res) => {
   try {
-    const userId = getUserIdFromParams(req.params);
+    const { userId } = req.params;
     const { itemId: deleteItemId } = req.params;
     const userStore = await UserStore.findOne({ userId });
 
     if (!userStore) {
-      throw new AppError('Store not found for the User ID', 400);
+      throw new AppError(`User doesn't have a store`, 400);
     }
 
     if (!isItemInList(userStore.items, deleteItemId)) {
@@ -98,13 +97,13 @@ const deleteItemFromUserStore = async (req, res) => {
 
 const updateItemInUserStore = async (req, res) => {
   try {
-    const userId = getUserIdFromParams(req.params);
+    const { userId } = req.params;
     const { itemId: updateItemId } = req.params;
     const { quantity } = req.body;
     const userStore = await UserStore.findOne({ userId });
 
     if (!userStore) {
-      throw new AppError('Store not found for the User ID', 400);
+      throw new AppError(`User doesn't have a store`, 400);
     }
 
     if (!isItemInList(userStore.items, updateItemId)) {

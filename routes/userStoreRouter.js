@@ -10,11 +10,11 @@ const {
 const userStoreRouter = Router();
 
 userStoreRouter.route('/')
-  .get(requireAuth, getItemsFromUserStore)
-  .post(requireAuth, addItemToUserStore);
+  .get(requireAuth(['user']), getItemsFromUserStore)
+  .post(requireAuth(['user']), addItemToUserStore);
 
 userStoreRouter.route('/:itemId')
-  .put(requireAuth, updateItemInUserStore)
-  .delete(requireAuth, deleteItemFromUserStore);
+  .put(requireAuth(['user']), updateItemInUserStore)
+  .delete(requireAuth(['user']), deleteItemFromUserStore);
 
 module.exports = { userStoreRouter };

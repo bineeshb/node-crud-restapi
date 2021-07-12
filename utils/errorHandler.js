@@ -12,9 +12,14 @@ const errorHandler = error => {
     errors.message = `Duplicate value in request ${duplicateValuesIn}`.trim();
   }
 
-  if (message === 'Unauthorized') {
+  if (message === 'Unauthorized' || message === 'invalid signature') {
     statusCode = 401;
     errors.message = 'User not authorized';
+  }
+
+  if (message === 'Forbidden') {
+    statusCode = 403;
+    errors.message = `User cannot perform this operation`;
   }
 
   if (message === 'Invalid Credentials') {

@@ -10,11 +10,11 @@ const {
 const masterStoreRouter = Router();
 
 masterStoreRouter.route('/')
-  .get(requireAuth, getItemsFromMasterStore)
-  .post(requireAuth, addItemToMasterStore);
+  .get(requireAuth(), getItemsFromMasterStore)
+  .post(requireAuth(['admin']), addItemToMasterStore);
 
 masterStoreRouter.route('/:itemId')
-  .put(requireAuth, updateItemInMasterStore)
-  .delete(requireAuth, deleteItemFromMasterStore);
+  .put(requireAuth(['admin']), updateItemInMasterStore)
+  .delete(requireAuth(['admin']), deleteItemFromMasterStore);
 
 module.exports = { masterStoreRouter };

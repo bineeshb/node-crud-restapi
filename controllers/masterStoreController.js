@@ -3,8 +3,6 @@ const { Item } = require('../models/itemModel');
 const { sendErrorResponse } = require('../utils/errorHandler');
 const AppError = require('../utils/appError');
 
-const isAdmin = userRole => userRole.toLowerCase() === 'admin';
-
 const getItemsFromMasterStore = async (req, res) => {
   try {
     let storeItems = await MasterStore.find().populate('itemId');
@@ -23,10 +21,6 @@ const getItemsFromMasterStore = async (req, res) => {
 
 const addItemToMasterStore = async (req, res) => {
   try {
-    if (!isAdmin(req.params.user.role)) {
-      throw new AppError(`User doesn't have access for this operation`, 403);
-    }
-
     const { name, quantity } = req.body;
     let item = await Item.findOne({ name });
 
@@ -52,10 +46,6 @@ const addItemToMasterStore = async (req, res) => {
 
 const deleteItemFromMasterStore = async (req, res) => {
   try {
-    if (!isAdmin(req.params.user.role)) {
-      throw new AppError(`User doesn't have access for this operation`, 403);
-    }
-
     const itemId = req.params.itemId;
     const storeItem = await MasterStore.findOne({ itemId });
 
@@ -75,10 +65,6 @@ const deleteItemFromMasterStore = async (req, res) => {
 
 const updateItemInMasterStore = async (req, res) => {
   try {
-    if (!isAdmin(req.params.user.role)) {
-      throw new AppError(`User doesn't have access for this operation`, 403);
-    }
-
     const itemId = req.params.itemId;
     const { name, quantity } = req.body;
     const storeItem = await MasterStore.findOne({ itemId });
