@@ -14,7 +14,8 @@ masterStoreRouter.route('/')
   .post(requireAuth(['admin']), addItemToMasterStore);
 
 masterStoreRouter.route('/:itemId')
-  .put(requireAuth(['admin']), updateItemInMasterStore)
-  .delete(requireAuth(['admin']), deleteItemFromMasterStore);
+  .all(requireAuth(['admin']))
+  .put(updateItemInMasterStore)
+  .delete(deleteItemFromMasterStore);
 
 module.exports = { masterStoreRouter };

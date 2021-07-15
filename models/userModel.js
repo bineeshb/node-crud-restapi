@@ -44,7 +44,7 @@ userSchema.statics.login = async function(username, password) {
     }
   }
 
-  throw Error('Invalid Credentials');
+  throw Error('invalid credentials');
 };
 
 const User = model('User', userSchema);

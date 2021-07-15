@@ -1,44 +1,54 @@
 const errorHandler = error => {
-  const { code, message } = error;
+  let { code, message } = error;
   console.error(code, message);
   let statusCode = error.statusCode || 500;
   let errors = {};
 
   if (code === 11000) {
-    const duplicateValuesIn = error.keyPattern && typeof error.keyPattern === 'object'
-      ? `for the keys: ${Object.keys(error.keyPattern).join()}`
-      : '';
-    statusCode = 400;
-    errors.message = `Duplicate value in request ${duplicateValuesIn}`.trim();
+    message = 'duplicate value';
+  } else if (message.toLowerCase().includes('cast to objectid failed')) {
+    message = 'invalid id';
+  } else if (message.toLowerCase().includes('validation failed')) {
+    message = 'validation failed';
   }
 
-  if (message === 'Unauthorized' || message === 'invalid signature') {
-    statusCode = 401;
-    errors.message = 'User not authorized';
-  }
+  switch (message.toLowerCase()) {
+    case 'unauthorized':
+    case 'invalid signature':
+      statusCode = 401;
+      errors.message = 'User not authorized';
+      break;
 
-  if (message === 'Forbidden') {
-    statusCode = 403;
-    errors.message = `User cannot perform this operation`;
-  }
+    case 'invalid credentials':
+      statusCode = 400;
+      errors.message = message;
+      break;
 
-  if (message === 'Invalid Credentials') {
-    statusCode = 400;
-    errors.message = message;
-  }
+    case 'forbidden':
+      statusCode = 403;
+      errors.message = 'User cannot perform this operation';
+      break;
 
-  if (message.includes('Cast to ObjectId failed')) {
-    statusCode = 400;
-    errors.message = 'Invalid ID in request';
-  }
+    case 'invalid id':
+      statusCode = 400;
+      errors.message = 'Invalid ID in request';
+      break;
 
-  if (message.includes('validation failed')) {
-    statusCode = 400;
-    Object.values(error.errors).forEach(({ properties: { path, message } }) => (errors[path] = message));
-  }
+    case 'duplicate value':
+      const duplicateValuesIn = error.keyPattern && typeof error.keyPattern === 'object'
+        ? `for the keys: ${Object.keys(error.keyPattern).join()}`
+        : '';
+      statusCode = 400;
+      errors.message = `Duplicate value in request ${duplicateValuesIn}`.trim();
+      break;
 
-  if (Object.keys(errors).length === 0) {
-    errors.message = message || 'Server Error';
+    case 'validation failed':
+      statusCode = 400;
+      Object.values(error.errors).forEach(({ properties: { path, message } }) => (errors[path] = message));
+      break;
+
+    default:
+      errors.message = message || 'Server Error';
   }
 
   return {

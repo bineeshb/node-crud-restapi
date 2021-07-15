@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const {
+  checkUserStoreAndItem,
   addItemToUserStore,
   deleteItemFromUserStore,
   getItemsFromUserStore,
@@ -10,11 +11,13 @@ const {
 const userStoreRouter = Router();
 
 userStoreRouter.route('/')
-  .get(requireAuth(['user']), getItemsFromUserStore)
-  .post(requireAuth(['user']), addItemToUserStore);
+  .all(requireAuth(['user']))
+  .get(getItemsFromUserStore)
+  .post(addItemToUserStore);
 
 userStoreRouter.route('/:itemId')
-  .put(requireAuth(['user']), updateItemInUserStore)
-  .delete(requireAuth(['user']), deleteItemFromUserStore);
+  .all([ requireAuth(['user']), checkUserStoreAndItem ])
+  .put(updateItemInUserStore)
+  .delete(deleteItemFromUserStore);
 
 module.exports = { userStoreRouter };

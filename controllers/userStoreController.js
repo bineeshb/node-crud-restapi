@@ -5,6 +5,26 @@ const { sendErrorResponse } = require('../utils/errorHandler');
 const isItemInList = (items, findItemId) => items.some(({ itemId }) => itemId.equals(findItemId));
 const getRemainingItems = (items, excludeItemId) => items.filter(({ itemId }) => !itemId.equals(excludeItemId));
 
+const checkUserStoreAndItem = async (req, res, next) => {
+  try {
+    const { userId, itemId } = req.params;
+    const userStore = await UserStore.findOne({ userId });
+
+    if (!userStore) {
+      throw new AppError(`User doesn't have a store`, 400);
+    }
+
+    if (!isItemInList(userStore.items, itemId)) {
+      throw new AppError('Item not found in User store', 400);
+    }
+
+    req.params.userStore = userStore;
+    next();
+  } catch(error) {
+    sendErrorResponse(res, error);
+  }
+};
+
 const getItemsFromUserStore = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -14,6 +34,7 @@ const getItemsFromUserStore = async (req, res) => {
       : [];
 
     res.json({
+      totalQuantity: items.reduce((sum, { quantity }) => sum + quantity, 0),
       noOfItems: items.length,
       items
     });
@@ -65,17 +86,7 @@ const addItemToUserStore = async (req, res) => {
 
 const deleteItemFromUserStore = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { itemId: deleteItemId } = req.params;
-    const userStore = await UserStore.findOne({ userId });
-
-    if (!userStore) {
-      throw new AppError(`User doesn't have a store`, 400);
-    }
-
-    if (!isItemInList(userStore.items, deleteItemId)) {
-      throw new AppError('Item not found in User store', 400);
-    }
+    const { itemId: deleteItemId, userId, userStore } = req.params;
 
     const updatedDetails = {
       userId,
@@ -97,18 +108,8 @@ const deleteItemFromUserStore = async (req, res) => {
 
 const updateItemInUserStore = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { itemId: updateItemId } = req.params;
+    const { itemId: updateItemId, userId, userStore } = req.params;
     const { quantity } = req.body;
-    const userStore = await UserStore.findOne({ userId });
-
-    if (!userStore) {
-      throw new AppError(`User doesn't have a store`, 400);
-    }
-
-    if (!isItemInList(userStore.items, updateItemId)) {
-      throw new AppError('Item not found in User store', 400);
-    }
 
     const updatedDetails = {
       userId,
@@ -135,6 +136,7 @@ const updateItemInUserStore = async (req, res) => {
 };
 
 module.exports = {
+  checkUserStoreAndItem,
   addItemToUserStore,
   deleteItemFromUserStore,
   getItemsFromUserStore,
