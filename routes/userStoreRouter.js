@@ -2,22 +2,16 @@ const { Router } = require('express');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const {
   checkUserStoreAndItem,
-  addItemToUserStore,
-  deleteItemFromUserStore,
-  getItemsFromUserStore,
-  updateItemInUserStore
+  sellItemCompletely,
+  getUserStoreItems,
+  sellItemQuantities
 } = require('../controllers/userStoreController');
 
 const userStoreRouter = Router();
 
-userStoreRouter.route('/')
-  .all(requireAuth(['user']))
-  .get(getItemsFromUserStore)
-  .post(addItemToUserStore);
-
-userStoreRouter.route('/:itemId')
-  .all([ requireAuth(['user']), checkUserStoreAndItem ])
-  .put(updateItemInUserStore)
-  .delete(deleteItemFromUserStore);
+userStoreRouter
+  .get('/', requireAuth(['user']), getUserStoreItems)
+  .put('/:itemId/sell', [ requireAuth(['user']), checkUserStoreAndItem ], sellItemQuantities)
+  .delete('/:itemId', [ requireAuth(['user']), checkUserStoreAndItem ], sellItemCompletely);
 
 module.exports = { userStoreRouter };

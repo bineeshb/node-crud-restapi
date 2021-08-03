@@ -12,6 +12,8 @@ const { userStoreRouter } = require('./routes/userStoreRouter');
 const app = express();
 const SERVER_PORT = process.env.SERVER_PORT || 3000;
 const apiBaseURL = '/api/v1';
+const apiAvailableItems = `${apiBaseURL}/available-items`;
+const apiStoreItems = `${apiBaseURL}/store-items`;
 
 if (process.env.DB_URI) {
   mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -24,24 +26,26 @@ if (process.env.DB_URI) {
 app.use(cookieParser());
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get(apiBaseURL, (req, res) => {
   res.json({
     message: `Check the available APIs in 'apis' property`,
     apis: [
       { path: `${apiBaseURL}/signup`, protocols: ['POST'] },
       { path: `${apiBaseURL}/login`, protocols: ['POST'] },
       { path: `${apiBaseURL}/logout`, protocols: ['GET'] },
-      { path: `${apiBaseURL}/available-items`, protocols: ['GET', 'POST'] },
-      { path: `${apiBaseURL}/available-items/:itemId`, protocols: ['PUT', 'DELETE'] },
-      { path: `${apiBaseURL}/store-items`, protocols: ['GET', 'POST'] },
-      { path: `${apiBaseURL}/store-items/:itemId`, protocols: ['PUT', 'DELETE'] }
+      { path: apiAvailableItems, protocols: ['GET', 'POST'] },
+      { path: `${apiAvailableItems}/<ITEM_ID>`, protocols: ['PUT', 'DELETE'] },
+      { path: `${apiAvailableItems}/<ITEM_ID>/buy`, protocols: ['POST'] },
+      { path: apiStoreItems, protocols: ['GET'] },
+      { path: `${apiStoreItems}/<ITEM_ID>/sell`, protocols: ['PUT'] },
+      { path: `${apiStoreItems}/<ITEM_ID>`, protocols: ['DELETE'] }
     ]
   });
 });
 
 app.use(apiBaseURL, userRouter);
-app.use(`${apiBaseURL}/available-items`, masterStoreRouter);
-app.use(`${apiBaseURL}/store-items`, userStoreRouter);
+app.use(apiAvailableItems, masterStoreRouter);
+app.use(apiStoreItems, userStoreRouter);
 
 app.listen(SERVER_PORT, () => {
   console.log(`Server running on port ${SERVER_PORT}`);

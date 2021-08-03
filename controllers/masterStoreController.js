@@ -1,9 +1,10 @@
 const { MasterStore } = require('../models/storeModel');
 const { Item } = require('../models/itemModel');
+const UserStore = require('../models/userStoreModel');
 const { sendErrorResponse } = require('../utils/errorHandler');
 const AppError = require('../utils/appError');
 
-const getItemsFromMasterStore = async (req, res) => {
+const getMasterStoreItems = async (req, res) => {
   try {
     let storeItems = await MasterStore.find().populate('itemId');
 
@@ -19,7 +20,7 @@ const getItemsFromMasterStore = async (req, res) => {
   }
 };
 
-const addItemToMasterStore = async (req, res) => {
+const addMasterStoreItem = async (req, res) => {
   try {
     const { name, quantity } = req.body;
     let item = await Item.findOne({ name });
@@ -44,7 +45,7 @@ const addItemToMasterStore = async (req, res) => {
   }
 };
 
-const deleteItemFromMasterStore = async (req, res) => {
+const deleteMasterStoreItem = async (req, res) => {
   try {
     const itemId = req.params.itemId;
     const storeItem = await MasterStore.findOne({ itemId });
@@ -63,7 +64,7 @@ const deleteItemFromMasterStore = async (req, res) => {
   }
 };
 
-const updateItemInMasterStore = async (req, res) => {
+const updateMasterStoreItem = async (req, res) => {
   try {
     const itemId = req.params.itemId;
     const { name, quantity } = req.body;
@@ -95,9 +96,47 @@ const updateItemInMasterStore = async (req, res) => {
   }
 };
 
+const buyMasterStoreItem = async (req, res) => {
+  try {
+    const { itemId, userId } = req.params;
+    const { quantity: requestedQuantity } = req.body;
+    const { id: storeItemId, quantity: availableQuantity } = await MasterStore.getItem(itemId);
+
+    if (requestedQuantity && (requestedQuantity > availableQuantity)) {
+      throw new AppError('Requested quantity of Items not available in the Master store', 400);
+    }
+
+    const userStore = await UserStore.findOne({ userId });
+
+    if (userStore?.items) {
+      const itemToUpdate = userStore.items.find(({ itemId: availableItemId }) => availableItemId.equals(itemId));
+      const quantity = itemToUpdate?.quantity ? (itemToUpdate.quantity + requestedQuantity) : requestedQuantity;
+
+      await UserStore.updateItemQuantity(userStore.id, itemId, quantity);
+    } else {
+      await UserStore.create({
+        userId,
+        items: [{
+          itemId,
+          quantity: requestedQuantity
+        }]
+      });
+    }
+
+    await MasterStore.updateItemQuantity(storeItemId, (availableQuantity - requestedQuantity));
+
+    res.json({
+      message: 'Item added to User Store successfully'
+    });
+  } catch(error) {
+    sendErrorResponse(res, error);
+  }
+};
+
 module.exports = {
-  addItemToMasterStore,
-  deleteItemFromMasterStore,
-  getItemsFromMasterStore,
-  updateItemInMasterStore
+  addMasterStoreItem,
+  buyMasterStoreItem,
+  deleteMasterStoreItem,
+  getMasterStoreItems,
+  updateMasterStoreItem
 };

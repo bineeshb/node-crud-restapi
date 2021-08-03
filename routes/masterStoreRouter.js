@@ -1,21 +1,24 @@
 const { Router } = require('express');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const {
-  addItemToMasterStore,
-  deleteItemFromMasterStore,
-  getItemsFromMasterStore,
-  updateItemInMasterStore
+  addMasterStoreItem,
+  buyMasterStoreItem,
+  deleteMasterStoreItem,
+  getMasterStoreItems,
+  updateMasterStoreItem
 } = require('../controllers/masterStoreController');
 
 const masterStoreRouter = Router();
 
 masterStoreRouter.route('/')
-  .get(requireAuth(), getItemsFromMasterStore)
-  .post(requireAuth(['admin']), addItemToMasterStore);
+  .get(requireAuth(), getMasterStoreItems)
+  .post(requireAuth(['admin']), addMasterStoreItem);
 
 masterStoreRouter.route('/:itemId')
   .all(requireAuth(['admin']))
-  .put(updateItemInMasterStore)
-  .delete(deleteItemFromMasterStore);
+  .put(updateMasterStoreItem)
+  .delete(deleteMasterStoreItem);
+
+masterStoreRouter.post('/:itemId/buy', requireAuth(['user']), buyMasterStoreItem)
 
 module.exports = { masterStoreRouter };
